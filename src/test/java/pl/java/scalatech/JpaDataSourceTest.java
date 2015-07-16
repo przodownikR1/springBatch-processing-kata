@@ -26,6 +26,7 @@ public class JpaDataSourceTest {
     @Test
     public void shouldDatabaseSourceCreate() {
         Assertions.assertThat(dataSource).isNotNull();
+
     }
 
 }
