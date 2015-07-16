@@ -1,0 +1,22 @@
+<h1>Batch Jobs</h1>
+<p class="index-page--subtitle"> This section lists all
+  available batch jobs deployed with this instance of Spring Batch Admin.
+</p>
+<div id="batch-jobs" class="tab-pane active col-md-12">
+  <table ng-table="tableParams" class="table">
+    <tr ng-repeat="job in $data">
+      <td data-title="'Name'" class="text-center">
+        <a ui-sref="jobSummary({ jobname:job.name })">{{job.name}}</a>
+      </td>
+      <td data-title="'Execution Count'" class="text-center">
+        <a ui-sref="jobExecution({jobName: job.name})">{{job.executionCount}}</a>
+      </td>
+      <td data-title="'Launchable'" class="text-center">
+        {{job.launchable}}
+      </td>
+      <td data-title="'Incrementable'" class="text-center">
+        {{job.incrementable}}
+      </td>
+    </tr>
+  </table>
+</div>

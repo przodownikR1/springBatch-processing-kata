@@ -1,0 +1,120 @@
+<h1>File Upload</h1>
+<p class="index-page--subtitle">This page allows for the uploading of data files.
+</p>
+<div class="row">
+
+  <div class="col-md-12">
+
+    <h3>Enter Path</h3>
+
+    <div class="rowHeight">
+      <label for="path">Path: </label>
+      <input ng-model="path" type="text" id="path" name="path" required="" /><em>&nbsp;Required</em>
+    </div>
+
+    <h3>Select files</h3>
+
+    <div class="hidden-xs" ng-show="uploader.isHTML5">
+      <!-- 3. nv-file-over uploader="link" over-class="className" -->
+      <div class="well my-drop-zone col-md-4 " nv-file-drop="" uploader="uploader">
+        Drop file here
+      </div>
+    </div>
+
+    <div class="col-md-1 hidden-xs"> OR </div>
+
+    <div class="col-md-7">
+      <!-- Example: nv-file-select="" uploader="{Object}" options="{Object}" filters="{String}" -->
+      Select Files
+      <input type="file" nv-file-select="" uploader="uploader" multiple  /><br/>
+    </div>
+  </div>
+
+  <div class="col-md-12" style="margin-bottom: 40px">
+
+    <h3>Upload queue</h3>
+    <p>Queue length: {{ uploader.queue.length }}</p>
+
+    <table class="table">
+      <thead>
+      <tr>
+        <th width="50%">Name</th>
+        <th ng-show="uploader.isHTML5">Size</th>
+        <th ng-show="uploader.isHTML5">Progress</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="item in uploader.queue">
+        <td><strong>{{ item.file.name }}</strong></td>
+        <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
+        <td ng-show="uploader.isHTML5">
+          <div class="progress" style="margin-bottom: 0;">
+            <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div>
+          </div>
+        </td>
+        <td class="text-center">
+          <span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+          <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
+          <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
+        </td>
+        <td nowrap>
+          <button type="button" class="btn btn-default btn-xs" ng-click="item.upload()" ng-disabled="item.isReady || item.isUploading || item.isSuccess">
+            <span class="glyphicon glyphicon-upload"></span> Upload
+          </button>
+          <button type="button" class="btn btn-default btn-xs" ng-click="item.cancel()" ng-disabled="!item.isUploading">
+            <span class="glyphicon glyphicon-ban-circle"></span> Cancel
+          </button>
+          <button type="button" class="btn btn-default btn-xs" ng-click="item.remove()">
+            <span class="glyphicon glyphicon-trash"></span> Remove
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div>
+      <div>
+        Queue progress:
+        <div class="progress" style="">
+          <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }"></div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-default btn-s" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">
+        <span class="glyphicon glyphicon-upload"></span> Upload all
+      </button>
+      <button type="button" class="btn btn-default btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading">
+        <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+      </button>
+      <button type="button" class="btn btn-default btn-s" ng-click="uploader.clearQueue()" ng-disabled="!uploader.queue.length">
+        <span class="glyphicon glyphicon-trash"></span> Remove all
+      </button>
+    </div>
+
+  </div>
+
+  <div id="data-files" ng-show="tableData" class="tab-pane active col-md-12">
+    <h2>Data Files</h2>
+
+    <div class="pull-right rowHeight">
+      <label for="pattern">Pattern to delete: </label>
+      <input ng-model="pattern" type="text" id="pattern" name="pattern" required="" /><em>&nbsp;Required</em>
+      <button type="button" class="btn btn-default btn-s" ng-click="deleteFiles()" ng-disabled="!pattern">
+        <span class="glyphicon glyphicon-trash"></span> Delete
+      </button>
+    </div>
+
+    <table ng-table="tableParams" class="table">
+      <tr ng-repeat="file in $data">
+        <td data-title="'Local'" class="text-center">
+          {{file.local}}
+        </td>
+        <td data-title="'Path'" class="text-center">
+          {{file.path}}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>
