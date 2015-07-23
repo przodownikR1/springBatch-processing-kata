@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+
+
+    <batch:job id="airportsJob">
+        <batch:step id="singleAirportImportStep" parent="airportImportStep"/>
+    </batch:job>
+
+
+    <bean id="rangePartitioner" class="org.springframework.batch.core.partition.support.SimplePartitioner"/>
+
+    <bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor"/>
+    
+    <batch:job id="airportsPartitionJob">
+        <batch:step id="partitionAirportImportStep">
+            <batch:partition step="airportImportStep" partitioner="rangePartitioner">
+                <batch:handler grid-size="20" task-executor="taskExecutor"/>
+            </batch:partition>
+        </batch:step>
+    </batch:job>
+
+
+    <batch:step id="airportImportStep">
+        <batch:tasklet>
+            <batch:chunk commit-interval="10">
+                <batch:reader>
+                    <bean class="org.springframework.batch.item.file.FlatFileItemReader">
+                        <property name="resource" value="/src/test/resources/airports.dat"/>
+                        <property name="lineMapper">
+                            <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+                                <property name="lineTokenizer">
+                                    <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                                        <property name="names"
+                                                  value="ID,AIRPORTNAME,CITY,COUNTRY,SHORTCUT,ARNAME,LAT,LON,ALT,PORT,SK,REGION"/>
+                                    </bean>
+                                </property>
+                                <property name="fieldSetMapper">
+                                    <bean class="pl.java.scalatech.mapper.AirportFieldSetMapper"/>
+                                </property>
+                            </bean>
+                        </property>
+                    </bean>
+                </batch:reader>
+                <batch:writer>
+                    <bean class="org.springframework.batch.item.database.JpaItemWriter">
+                        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+                    </bean>
+
+                </batch:writer>
+            </batch:chunk>
+        </batch:tasklet>
+    </batch:step>
+
+</beans>
