@@ -29,8 +29,9 @@ public class SampleJob {
     public StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    @StepScope
+    @StepScope //check !!! 
     public FailTasklet tasklet(@Value("#{jobParameters[fail]}") String failable) {
+        log.info("+++   invoke tasklet with arg = {}",failable);
         if (failable != null) { return new FailTasklet(failable); }
         return new FailTasklet("false");
     }
@@ -46,9 +47,7 @@ public class SampleJob {
     }
 
     public static class FailTasklet implements Tasklet {
-
         private final boolean fail;
-
         public FailTasklet(String fail) {
             this.fail = Boolean.parseBoolean(fail);
         }
@@ -56,7 +55,6 @@ public class SampleJob {
         @Override
         public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
             log.info("Tasklet was executed");
-
             if (fail) { throw new RuntimeException("This exception was expected"); }
             return RepeatStatus.FINISHED;
         }
