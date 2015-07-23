@@ -1,5 +1,7 @@
 package pl.java.scalatech.job;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 @Configuration
 @Component
+@Slf4j
 public class SampleJob {
 
     @Autowired
@@ -27,9 +30,9 @@ public class SampleJob {
 
     @Bean
     @StepScope
-    public FailableTasklet tasklet(@Value("#{jobParameters[fail]}") Boolean failable) {
-        if (failable != null) { return new FailableTasklet(failable); }
-        return new FailableTasklet(false);
+    public FailTasklet tasklet(@Value("#{jobParameters[fail]}") String failable) {
+        if (failable != null) { return new FailTasklet(failable); }
+        return new FailTasklet("false");
     }
 
     @Bean
@@ -42,17 +45,17 @@ public class SampleJob {
         return jobBuilderFactory.get("job").start(step()).build();
     }
 
-    public static class FailableTasklet implements Tasklet {
+    public static class FailTasklet implements Tasklet {
 
         private final boolean fail;
 
-        public FailableTasklet(boolean fail) {
-            this.fail = fail;
+        public FailTasklet(String fail) {
+            this.fail = Boolean.parseBoolean(fail);
         }
 
         @Override
         public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-            System.out.println("Tasklet was executed");
+            log.info("Tasklet was executed");
 
             if (fail) { throw new RuntimeException("This exception was expected"); }
             return RepeatStatus.FINISHED;
