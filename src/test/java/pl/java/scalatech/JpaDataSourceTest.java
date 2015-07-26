@@ -2,11 +2,14 @@ package pl.java.scalatech;
 
 import java.math.BigDecimal;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.assertj.core.api.Assertions;
+import org.hibernate.hql.internal.ast.tree.IsNotNullLogicOperatorNode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +38,15 @@ public class JpaDataSourceTest {
     
     @Autowired
     private CountryRepository countryRepository;
+    @Autowired
+    private EntityManagerFactory emf;
+    @Autowired
+    private EntityManager entityManager;
     
     @Test
     public void shouldDatabaseSourceCreate() {
+        Assertions.assertThat(entityManager).isNotNull();
+        Assertions.assertThat(emf).isNotNull();
         Assertions.assertThat(dataSource).isNotNull();
         Assertions.assertThat(airportRepository).isNotNull();
         Assertions.assertThat(countryRepository).isNotNull();

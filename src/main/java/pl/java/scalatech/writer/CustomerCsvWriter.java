@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.java.scalatech.domain.Customer;
 @StepScope
 @Component
-@Profile("fileCsv")
+@Profile(value= {"fileCsv","jpa"})
 @Slf4j
 @NoArgsConstructor
 public class CustomerCsvWriter extends FlatFileItemWriter<Customer>{
