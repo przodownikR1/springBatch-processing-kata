@@ -66,6 +66,8 @@
 	<logger name="org.springframework.batch" level="info" />
 	<logger name="org.springframework.data" level="warn" />
 	<logger name="org.springframework.security" level="info" />
+	<logger name="org.camel" level="info" />
+	<logger name="camel" level="info" />
 	
 	
 

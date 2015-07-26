@@ -4,7 +4,6 @@ buildscript {
         springBatchAdminVersion = '2.0.0.BUILD-SNAPSHOT'
     }
     
- 
     repositories {
         mavenCentral()
     }
@@ -16,7 +15,6 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'idea'
 apply plugin: 'spring-boot' 
 apply plugin: 'io.spring.dependency-management' 
 
@@ -33,7 +31,9 @@ repositories {
         url 'https://repo.spring.io/libs-snapshot-local/'
     }
 }
-
+ext{
+ camelVersion = '2.15.2'
+}
  
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-aop")
@@ -57,11 +57,28 @@ dependencies {
    //    exclude group: 'org.springframework', module: 'spring-context-support'
    // }
     
+    compile 'org.apache.camel:camel-core:2.15.2' 
+    compile "org.apache.camel:camel-spring-boot:2.15.2"
+    compile 'org.apache.camel:camel-spring:2.15.2'
+    compile 'org.apache.camel:camel-spring-javaconfig:2.15.2'
+    compile "org.apache.camel:camel-bindy:2.15.2"
+    compile 'org.apache.camel:camel-csv:2.15.2'
+    
     compile("org.projectlombok:lombok:1.16.4")
     compile("com.google.guava:guava:18.0")
     
     compile ("com.jayway.awaitility:awaitility:1.6.3")   
     runtime("mysql:mysql-connector-java")
+    
+    compile "org.apache.camel:camel-jms:2.15.2"
+    compile("org.apache.activemq:activemq-broker")
+    compile("org.apache.activemq:activemq-client")
+    compile("org.apache.activemq:activemq-camel:5.11.1")
+    compile("org.apache.xbean:xbean-spring:4.2") {
+        exclude module: "org.springframework:spring"
+    }
+    
+    
     
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile('junit:junit:4.12')

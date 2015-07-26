@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:camel="http://camel.apache.org/schema/spring"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    
+    <bean id="properties"
+        class="org.apache.camel.component.properties.PropertiesComponent">
+        <property name="location" value="classpath:camel.properties" />
+    </bean>
+
+<bean id="bindyDataformat" class="org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat"/>
+
+
+      <!--   <camel:dataFormats>
+            <camel:jaxb contextPath="org.apache.camel.example" prettyPrint="true" id="myJaxb" />
+        </camel:dataFormats>
+        
+        <camel:route id="toXml">
+            <camel:from uri="direct:toXml" />
+            <camel:marshal ref="myJaxb" />
+            <camel:to uri="direct:process" />
+        </camel:route>
+         -->
+        
+    <camel:camelContext id="deliveryNoteImport">
+        <camel:route>
+            <camel:from uri="{{from.input}}" />
+            <camel:split streaming="true">
+                <camel:tokenize token="\n" xml="false" />
+                <camel:unmarshal>
+                    <camel:csv delimiter=";" />
+                </camel:unmarshal>
+                <camel:process ref="csvToStockItemProcessor" />
+                <camel:bean ref="stockService" method="addStockItem"/>
+            </camel:split>
+        </camel:route>
+        <camel:route id="routeId2">
+        <camel:from uri="{{from.input}}" />
+              <camel:unmarshal>
+                <camel:bindy classType="pl.java.scalatech.domain.Customer" type="Csv" />
+            </camel:unmarshal>
+            <camel:split>
+                <camel:simple>body</camel:simple>
+                <camel:to uri="direct:end" />
+            </camel:split>
+        
+        </camel:route>
+    </camel:camelContext>
+    
+    </beans>
