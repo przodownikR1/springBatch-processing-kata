@@ -1,7 +1,7 @@
 package pl.java.scalatech.reader;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
+import javax.annotation.Resource;
 import javax.persistence.EntityManagerFactory;
 
 import lombok.NoArgsConstructor;
@@ -10,41 +10,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import pl.java.scalatech.config.JpaConfig;
 import pl.java.scalatech.domain.Customer;
 
-@Component
-@Profile(value= {"jpa","dev"})
-@StepScope
 @Slf4j
+@Profile("jpa")
+@Component
 @NoArgsConstructor
-public class JpaReader extends JpaPagingItemReader<Customer>{
-    @Autowired
-    private EntityManagerFactory emf;
-    @Autowired
-    private EntityManager em;
-    
+@StepScope
+public class JpaReader extends JpaPagingItemReader<Customer> {
+
+    @Override
+    @Resource
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        log.info("setEntityManagerFactory      {}", entityManagerFactory);
+        super.setEntityManagerFactory(entityManagerFactory);
+    }
+
     @PostConstruct
     public void post() {
-        log.info("!!!!!!!!!!!!!!!!           JpaReader {}  {}",emf,em);
+        log.info("!!!!!!!!!!!!!!!! +++          JpaReader ");
     }
-        
+
     @Autowired
-    public JpaReader(EntityManagerFactory emf,EntityManager em,@Value("#{jobParameters['id']}") Long id,@Value("#{jobParameters['page']}") int page) {
-        System.err.println("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-        log.info("+++   {}  ->   {}",emf,em);
-        setEntityManagerFactory(emf);
+    public JpaReader(EntityManagerFactory entityManagerFactory/* @Value("#{jobParameters['id']}") Long id, @Value("#{jobParameters['page']}") int page */) {
+        System.err.println("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS  " + entityManagerFactory);
+        setEntityManagerFactory(entityManagerFactory);
+        setQueryString("select c from Customer c where c.id > " + 1);
 
-        setQueryString("select c from Customer c where c.id > " + id);
+        setPageSize(10);
 
-        setPageSize(page);
-
-           
     }
-    
 }

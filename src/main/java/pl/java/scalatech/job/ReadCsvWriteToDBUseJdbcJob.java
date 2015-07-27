@@ -16,41 +16,33 @@ import org.springframework.stereotype.Component;
 
 import pl.java.scalatech.domain.Customer;
 import pl.java.scalatech.reader.CustomerReader;
-import pl.java.scalatech.writer.CustomerCsvWriter;
 import pl.java.scalatech.writer.CustomerJdbcWriter;
 
 @Configuration
 @Component
-@Profile(value= {"fileCsv","jdbc"})
+@Profile(value = { "fileCsv", "jdbc" })
 @Slf4j
-@ComponentScan(basePackageClasses= {CustomerReader.class,CustomerCsvWriter.class})
+@ComponentScan(basePackageClasses = { CustomerReader.class, CustomerJdbcWriter.class })
 public class ReadCsvWriteToDBUseJdbcJob {
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
 
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
-    
+
     @Autowired
     private CustomerReader customerReader;
 
     @Autowired
     private CustomerJdbcWriter customerJdbcWriter;
-    
+
     @Bean
     protected Job job() throws Exception {
-        return jobBuilderFactory
-                .get("jobJdbc")
-                .start(step1())
-                .build();
+        return jobBuilderFactory.get("jobJdbc").start(step1()).build();
     }
+
     @StepScope
     protected Step step1() throws Exception {
-        return stepBuilderFactory
-                .get("readStep")
-                .<Customer, Customer>chunk(10)
-                .reader(customerReader)
-                .writer(customerJdbcWriter)
-                .build();
+        return stepBuilderFactory.get("readStep").<Customer, Customer> chunk(10).reader(customerReader).writer(customerJdbcWriter).build();
     }
 }

@@ -1,6 +1,7 @@
 package pl.java.scalatech.config;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,9 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.Database;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -55,6 +59,33 @@ public class JpaConfig {
         ds.setUsername(userDB);
         ds.setPassword(passwdDB);
         return ds;
+    }
+
+    @Bean
+    @Profile("dev")
+    public EntityManagerFactory entityManagerFactory() {
+        log.info("+++ entityManagerFactory ..... dev");
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource());
+        HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+        hibernateJpaVendorAdapter.setDatabase(Database.MYSQL);
+        factory.setJpaVendorAdapter(hibernateJpaVendorAdapter);
+        factory.setPackagesToScan("pl.java.scalatech.domain");
+        factory.afterPropertiesSet();
+        return factory.getObject();
+    }
+
+    @Bean
+    @Profile("test")
+    public EntityManagerFactory entityManagerFactoryTest() {
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setDataSource(dataSource());
+        HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
+        hibernateJpaVendorAdapter.setDatabase(Database.H2);
+        factory.setJpaVendorAdapter(hibernateJpaVendorAdapter);
+        factory.setPackagesToScan("pl.java.scalatech.domain");
+        factory.afterPropertiesSet();
+        return factory.getObject();
     }
 
     @Configuration
