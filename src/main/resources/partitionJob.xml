@@ -25,7 +25,7 @@
 
    <batch:step id="slave">
         <batch:tasklet>
-            <batch:chunk reader="pagingItemReader" writer="flatFileItemWriter"  processor="customerProcessor" commit-interval="1" />
+            <batch:chunk reader="pagingItemReader" writer="flatFileItemWriter"  processor="customerProcessor" commit-interval="10" />
         </batch:tasklet>
     </batch:step>
   
@@ -38,7 +38,8 @@
                 <property name="dataSource" ref="dataSource" />
                 <property name="selectClause" value="select id, firstName, lastName, city" />
                 <property name="fromClause" value="from custs" />
-                <property name="whereClause" value="where id > :fromId and id < :toId" />
+                <property name="whereClause" value="where id &gt;=  :fromId and id &lt;= :toId" />
+                 <!-- "where ID between :begin and :end" -->
                 <property name="sortKey" value="id" />
             </bean>
         </property>
@@ -53,7 +54,7 @@
     
      
     <bean id="flatFileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter" scope="step" p:appendAllowed="false">
-        <property name="resource"  value="file:outgoing/customer.processed#{stepExecutionContext[fromId]}-#{stepExecutionContext[toId]}.csv" />
+        <property name="resource"  value="file:outgoing/customer.processed#{stepExecutionContext[minValue]}-#{stepExecutionContext[maxValue]}.csv" />
         <property name="lineAggregator">
             <bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator" p:delimiter=",">
                 <property name="fieldExtractor">
