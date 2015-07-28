@@ -3,17 +3,22 @@ package pl.java.scalatech.partition;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.batch.core.partition.support.Partitioner;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Slf4j
 public class ColumnRangePartitioner extends JdbcTemplate implements Partitioner {
-
+    
+    @Setter
     private String column;
+    @Setter
     private String table;
+    @Setter
     private int gridSize;
 
     @Override
@@ -50,16 +55,5 @@ public class ColumnRangePartitioner extends JdbcTemplate implements Partitioner 
         return result;
     }
 
-    public void setColumn(String column) {
-        this.column = column;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public void setGridSize(int gridSize) {
-        this.gridSize = gridSize;
-    }
-
+ 
 }

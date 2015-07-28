@@ -10,16 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import pl.java.scalatech.domain.Customer;
 
 @Slf4j
-@Profile("jpa")
+@Profile(value= {"jpa","dev"})
 @Component
 @NoArgsConstructor
 @StepScope
+
 public class JpaReader extends JpaPagingItemReader<Customer> {
 
     @Override

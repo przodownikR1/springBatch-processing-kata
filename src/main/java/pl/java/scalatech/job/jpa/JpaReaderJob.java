@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 
 import pl.java.scalatech.config.JpaConfig;
@@ -48,6 +49,7 @@ public class JpaReaderJob extends JpaPagingItemReader<Customer> {
     }
 
     @Bean
+    @DependsOn("entityManagerFactory")
     protected Job job() throws Exception {
         return jobBuilderFactory.get("jobJPA").start(step1()).build();
     }

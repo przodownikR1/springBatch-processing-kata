@@ -64,7 +64,7 @@ public class JpaConfig {
     @Bean
     @Profile("dev")
     public EntityManagerFactory entityManagerFactory() {
-        log.info("+++ entityManagerFactory ..... dev");
+        log.info("+++                 entityManagerFactory ..... dev");
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource());
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
@@ -78,6 +78,7 @@ public class JpaConfig {
     @Bean
     @Profile("test")
     public EntityManagerFactory entityManagerFactoryTest() {
+        log.info("+++                 entityManagerFactory ..... dev");
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setDataSource(dataSource());
         HibernateJpaVendorAdapter hibernateJpaVendorAdapter = new HibernateJpaVendorAdapter();
