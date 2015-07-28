@@ -78,3 +78,10 @@ local.properties
 *~
 
 *.log
+outgoing/ 
+outgoing* 
+outgoing/customer* 
+/custs.csv
+/jpaCsv.csv
+/PassThroughField.csv
+/processedCustomers.csv
