@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:batch="http://www.springframework.org/schema/batch"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="classpath:batchConfig.xml"/>
+   <bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+    <bean id="customerMapper" class="pl.java.scalatech.mapper.CustomerRowMapper" scope="prototype"/>
+    <bean id="customerProcessor" class="pl.java.scalatech.processor.CustomerProcessor" scope="step" p:threadName="#{stepExecutionContext[name]}"/>
+    
+   <batch:job id="partitionJob" >    
+        
+        <batch:step id="masterStep">
+            <batch:partition step="slave" partitioner="rangePartitioner">
+                <batch:handler grid-size="10" task-executor="taskExecutor" />
+            </batch:partition>
+        </batch:step>
+    </batch:job>
+
+   <batch:step id="slave">
+        <batch:tasklet>
+            <batch:chunk reader="pagingItemReader" writer="flatFileItemWriter"  processor="customerProcessor" commit-interval="10" />
+        </batch:tasklet>
+    </batch:step>
+  
+	
+	<bean id="rangePartitioner" class="pl.java.scalatech.partition.ColumnRangePartitioner" p:column="id" p:table="custs" p:gridSize="10" p:dataSource-ref="dataSource"/>
+	
+    <bean id="pagingItemReader" class="org.springframework.batch.item.database.JdbcPagingItemReader" scope="step" p:dataSource-ref="dataSource" p:pageSize="10" p:rowMapper-ref="customerMapper">
+        <property name="queryProvider">
+            <bean class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+                <property name="dataSource" ref="dataSource" />
+                <property name="selectClause" value="select id, firstName, lastName, city" />
+                <property name="fromClause" value="from custs" />
+                <property name="whereClause" value="where id &gt;=  :fromId and id &lt;= :toId" />
+                 <!-- "where ID between :begin and :end" -->
+                <property name="sortKey" value="id" />
+            </bean>
+        </property>
+  
+        <property name="parameterValues">
+            <map>
+                <entry key="fromId" value="#{stepExecutionContext[minValue]}" />
+                <entry key="toId" value="#{stepExecutionContext[maxValue]}" />
+            </map>
+        </property> 
+    </bean>
+    
+     
+    <bean id="flatFileItemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter" scope="step" p:appendAllowed="false">
+        <property name="resource"  value="file:outgoing/customer.processed#{stepExecutionContext[minValue]}-#{stepExecutionContext[maxValue]}.csv" />
+        <property name="lineAggregator">
+            <bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator" p:delimiter=",">
+                <property name="fieldExtractor">
+                    <bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor" p:names="id,firstName,lastName,city"/>
+                </property>
+            </bean>
+        </property>
+    </bean> 
+</beans>

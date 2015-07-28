@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:batch="http://www.springframework.org/schema/batch"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation=
+        "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <import resource="classpath:batchConfig.xml"/>
+    <bean id="writer" class="pl.java.scalatech.writer.CustomerStringWriter"/>
+    <bean id="stepListener" class="pl.java.scalatech.listener.StepSimpleListener"/>
+    <bean id="readerListener" class="pl.java.scalatech.listener.ItemStepReaderListener"/>
+    <bean id="writerListener" class="pl.java.scalatech.listener.ItemStepWriterListener"/>
+    <bean id="chunkListener" class="pl.java.scalatech.listener.ChunkBatchListener"/>
+   <batch:job id="jdbcPagingJob">
+     <batch:step id="first">
+       <batch:tasklet>
+         <batch:chunk commit-interval="30" reader="pagingItemReader" writer="writer"/>
+         <batch:listeners>
+           <batch:listener ref="stepListener"/>
+           <batch:listener ref="chunkListener"/>
+           <batch:listener ref="readerListener"/>
+          <!--  <batch:listener ref="writerListener"/> -->
+         </batch:listeners>   
+       </batch:tasklet>
+     </batch:step>
+   
+   </batch:job>
+ 
+ <bean id="pagingItemReader" class="org.springframework.batch.item.database.JdbcPagingItemReader" scope="step" >
+    <property name="dataSource" ref="dataSource" />
+    <property name="queryProvider">
+      <bean class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="selectClause" value="select id, firstName, lastName, city" />
+        <property name="fromClause" value="from person" />
+        <property name="whereClause" value="where id > :id" />
+        <property name="sortKey" value="id" />
+      </bean>
+    </property>
+    <property name="parameterValues">
+       <map>
+        <entry key="id" value="#{jobParameters['id']}" />
+       </map>
+    </property>
+    <property name="pageSize" value="10" />
+    <property name="rowMapper"> <bean class="pl.java.scalatech.mapper.CustomerRowMapper" />
+    </property>
+  </bean> 
+</beans>

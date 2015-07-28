@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:batch="http://www.springframework.org/schema/batch"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation=
+        "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <import resource="classpath:batchConfig.xml"/>
+    <bean id="writer" class="pl.java.scalatech.writer.CustomerStringWriter"/>
+    <bean id="readerDummy" class="pl.java.scalatech.reader.CustomerDummyReader"/>
+   <batch:job id="readWriteJob">
+     <batch:step id="first">
+       <batch:tasklet>
+         <batch:chunk commit-interval="10" reader="readerDummy" writer="itemWriter"/>   
+       </batch:tasklet>
+     </batch:step>
+   
+   </batch:job>
+   
+    <bean id="itemWriter" class="org.springframework.batch.item.file.FlatFileItemWriter" scope="step" p:resource="#{jobParameters['output.file']}"  >
+        
+        <property name="lineAggregator">
+            <bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
+                <property name="fieldExtractor">
+                    <bean class="org.springframework.batch.item.file.transform.PassThroughFieldExtractor" />
+                </property>
+            </bean>
+        </property>
+    </bean>
+ 
+
+  </beans>
