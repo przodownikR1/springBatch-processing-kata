@@ -77,7 +77,7 @@ dependencies {
     compile("org.apache.xbean:xbean-spring:4.2") {
         exclude module: "org.springframework:spring"
     }
-    
+       runtime("com.h2database:h2")
     
     
     testCompile("org.springframework.boot:spring-boot-starter-test")

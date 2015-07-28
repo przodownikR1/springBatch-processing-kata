@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
@@ -25,11 +26,13 @@ import org.apache.camel.dataformat.bindy.annotation.DataField;
 @XmlRootElement
 @XmlType
 @Entity
+@ToString(exclude = { "address", "state", "zip", "longitude", "latitude" })
 @CsvRecord(separator = ",", skipFirstLine = false)
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @DataField(pos = 1)
     @XmlElement

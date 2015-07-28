@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="classpath:batchConfig.xml" />
+	<bean id="readerDummy" class="pl.java.scalatech.reader.CustomerDummyReader" />
+
+	<batch:job id="writeXmlJob">
+		<batch:step id="fxml">
+			<batch:tasklet>
+				<batch:chunk commit-interval="10" reader="readerDummy" writer="itemWriter" />
+			</batch:tasklet>
+		</batch:step>
+
+	</batch:job>
+
+	<bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter" scope="step">
+		<property name="resource" value="#{jobParameters['output.file']}" />
+		<property name="marshaller" ref="userUnmarshaller" />
+		<property name="rootTagName" value="users" />
+	</bean>
+
+	<bean id="userUnmarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+		<property name="aliases">
+			<util:map id="aliases">
+				<entry key="user" value="pl.java.scalatech.domain.Customer" />
+			</util:map>
+		</property>
+	</bean>
+	
+</beans>
