@@ -11,21 +11,16 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
 
 @Slf4j
-public class FirstTasklet implements Tasklet {
+public class FifthTasklet implements Tasklet {
     @Setter
     @Getter
     private String status;
 
     @Override
     public RepeatStatus execute(StepContribution arg0, ChunkContext context) throws Exception {
-
         String name = (String) context.getStepContext().getJobParameters().get("name");
         ExecutionContext jobExecutionContext = context.getStepContext().getStepExecution().getJobExecution().getExecutionContext();
-        log.info("jobExcecutionContext : {}", jobExecutionContext.get("x"));
-        ;
-        String status = (String) context.getStepContext().getJobExecutionContext().get("x");
-        log.info("+++ Second  Tasklet  {} : name : {} ", status, name);
+        log.info("+++ Fifth  Tasklet  {} : name : {} ", status, name);
         return RepeatStatus.FINISHED;
     }
-
 }

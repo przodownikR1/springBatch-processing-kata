@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<import resource="classpath:batchConfig.xml" />
+
+	<bean id="taskExecuter" class="org.springframework.core.task.SimpleAsyncTaskExecutor" />
+
+	<bean id="first" class="pl.java.scalatech.tasklet.FirstTasklet" />
+	<bean id="second" class="pl.java.scalatech.tasklet.SecondTasklet" p:slept="10000" />
+	<bean id="third" class="pl.java.scalatech.tasklet.ThirdTasklet" p:slept="5000"/>
+	<bean id="fourth" class="pl.java.scalatech.tasklet.FourthTasklet" />
+	<bean id="fifth" class="pl.java.scalatech.tasklet.FifthTasklet" />
+
+
+	<batch:job id="parallelStepJob">
+
+		<batch:step id="initStep" next="processing">
+			<batch:description>first step</batch:description>
+			<batch:tasklet ref="first" />
+		</batch:step>
+
+		<batch:split id="processing" next="finishingStep" task-executor="taskExecuter">
+			<batch:flow>
+				<batch:step id="proc1" next="proc2">
+					<batch:tasklet ref="second" /> <!-- 10000 -->
+				</batch:step>
+				<batch:step id="proc2">
+					<batch:tasklet ref="fourth" />
+				</batch:step>
+			</batch:flow>
+			<batch:flow>
+				<batch:step id="proc3">
+					<batch:tasklet ref="third" /> <!-- 5000 -->
+				</batch:step>
+			</batch:flow>
+
+		</batch:split>
+		<batch:step id="finishingStep">
+			<batch:tasklet ref="fifth" />
+		</batch:step>
+	</batch:job>
+
+</beans>
